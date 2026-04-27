@@ -467,6 +467,7 @@ p {
     opacity: 0.18;
     pointer-events: none;
     z-index: 1;
+    animation: viewport-scan-drift 5s linear infinite;
 }
 
 .featured-post__image {
@@ -476,6 +477,7 @@ p {
     object-fit: cover;
     image-rendering: auto;
     transition: transform 0.15s ease, filter 0.15s ease;
+    animation: image-idle-flicker 4.8s steps(10, end) infinite;
 }
 
 .featured-post__signal {
@@ -511,6 +513,7 @@ p {
     letter-spacing: 0.12em;
     text-transform: uppercase;
     text-shadow: 0 0 10px rgba(255, 0, 0, 0.65);
+    animation: signal-copy-pulse 1.2s steps(2, end) infinite;
 }
 
 .featured-post__label {
@@ -524,12 +527,24 @@ p {
     text-transform: uppercase;
     text-align: center;
     transition: background-color 0.15s ease, color 0.15s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.featured-post__label::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+    transform: translateX(-100%);
+    animation: label-signal-pass 3.8s linear infinite;
 }
 
 .featured-post.is-loading .featured-post__image {
     opacity: 0.18;
     filter: grayscale(1) contrast(1.35);
     transform: scale(1.01);
+    animation: none;
 }
 
 .featured-post.is-loading .featured-post__signal {
@@ -688,12 +703,60 @@ p {
     75% { transform: translate(1px, 0); }
 }
 
+@keyframes viewport-scan-drift {
+    0% {
+        transform: translateY(0);
+        opacity: 0.12;
+    }
+    50% {
+        transform: translateY(8px);
+        opacity: 0.22;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 0.12;
+    }
+}
+
+@keyframes image-idle-flicker {
+    0% {
+        filter: brightness(1) contrast(1) saturate(1);
+    }
+    8% {
+        filter: brightness(1.03) contrast(1.04) saturate(1.02);
+    }
+    10% {
+        filter: brightness(0.97) contrast(1.08) saturate(0.98);
+    }
+    48% {
+        filter: brightness(1) contrast(1) saturate(1);
+    }
+    50% {
+        filter: brightness(1.04) contrast(1.06) saturate(1.03);
+    }
+    54% {
+        filter: brightness(0.99) contrast(1.02) saturate(1);
+    }
+    100% {
+        filter: brightness(1) contrast(1) saturate(1);
+    }
+}
+
 @keyframes signal-glitch {
     0% { transform: translate(0, 0); opacity: 0.92; }
     25% { transform: translate(-3px, 1px); opacity: 1; }
     50% { transform: translate(2px, -1px); opacity: 0.82; }
     75% { transform: translate(-1px, 2px); opacity: 0.96; }
     100% { transform: translate(0, 0); opacity: 0.88; }
+}
+
+@keyframes signal-copy-pulse {
+    0%, 49% {
+        opacity: 1;
+    }
+    50%, 100% {
+        opacity: 0.65;
+    }
 }
 
 @keyframes image-line-load {
@@ -714,6 +777,27 @@ p {
     }
     100% {
         transform: translateY(100%);
+        opacity: 0;
+    }
+}
+
+@keyframes label-signal-pass {
+    0% {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    15% {
+        opacity: 0.35;
+    }
+    45% {
+        opacity: 0.18;
+    }
+    60% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(100%);
         opacity: 0;
     }
 }

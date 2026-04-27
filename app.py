@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, url_for
 import datetime
 import os
 import random
@@ -11,6 +11,19 @@ app = Flask(__name__,
 load_dotenv()
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"}
+
+
+def asset_url(filename):
+    """Return a static asset URL with a cache-busting version query."""
+
+    file_path = os.path.join(app.static_folder, filename)
+    version = int(os.path.getmtime(file_path)) if os.path.exists(file_path) else 0
+    return url_for("static", filename=filename, v=version)
+
+
+@app.context_processor
+def inject_asset_url():
+    return {"asset_url": asset_url}
 
 
 def load_featured_images():
@@ -30,7 +43,7 @@ def load_featured_images():
         label = os.path.splitext(filename)[0].replace("_", " ").replace("-", " ").strip()
         featured_images.append(
             {
-                "image_url": f"/static/images/{filename}",
+                "image_url": asset_url(f"images/{filename}"),
                 "alt": label or "Featured image",
                 "caption_short": label.upper() or "RANDOM FEATURED IMAGE",
             }
