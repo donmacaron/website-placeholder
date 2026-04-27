@@ -66,6 +66,7 @@ def home():
             {'name': 'YT', 'url': url_yt},
             {'name': 'Flickr', 'url': url_flickr},
         ],
+        'featured_images': load_featured_images(),
         'featured_post': pick_featured_post(),
         'current_year': datetime.datetime.today().year
     }

@@ -5,26 +5,30 @@
     <meta charset='UTF-8'>
     <meta name='viewport' content='width=device-width,initial-scale=1.0'>
     <title>SYS.TERM - Under Construction</title>
+    <link id='dynamic-favicon' rel='icon' href='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Ctext x=%228%22 y=%2247%22 font-size=%2242%22 font-family=%22monospace%22 font-weight=%22700%22 fill=%22%23ff2b2b%22%3E%26gt%3B%26gt%3B%3C/text%3E%3C/svg%3E'>
     <link rel='stylesheet' href='{{ url_for('static', filename='css/main.css') }}'>
 </head>
 
 <body class='terminal'>
     <!-- ASCII Header Art -->
-    <pre class='ascii-header'>в–€в–“в–€в–€в–€в–€в–€в–„  в–€в–€в–€в–„ в–„в–€в–€в–€в–“
-в–’в–€в–€в–Ђ в–€в–€в–Њв–“в–€в–€в–’в–Ђв–€в–Ђ в–€в–€в–’
-в–‘в–€в–€   в–€в–Њв–“в–€в–€    в–“в–€в–€в–‘
-в–‘в–“в–€в–„   в–Њв–’в–€в–€    в–’в–€в–€ 
-в–‘в–’в–€в–€в–€в–€в–“ в–’в–€в–€в–’   в–‘в–€в–€в–’
- в–’в–’в–“  в–’ в–‘ в–’в–‘   в–‘  в–‘
- в–‘ в–’  в–’ в–‘  в–‘      в–‘
- в–‘ в–‘  в–‘ в–‘      в–‘
-   в–‘           в–‘
- в–‘                 
+    <pre class='ascii-header'>
+▓█████▄  ███▄ ▄███▓
+▒██▀ ██▌▓██▒▀█▀ ██▒
+░██   █▌▓██    ▓██░
+░▓█▄   ▌▒██    ▒██ 
+░▒████▓ ▒██▒   ░██▒
+ ▒▒▓  ▒ ░ ▒░   ░  ░
+ ░ ▒  ▒ ░  ░      ░
+ ░ ░  ░ ░      ░   
+   ░           ░   
+ ░                 
+             
 [ UNDER CONSTRUCTION ]
     </pre>
     <header class='header'>
         <h1>System Pending</h1>
         <p class='header__subtitle'>Initializing Portfolio Environment...</p>
+        01000100 01101001 01100111 01101001 01110100 01100001 01101100 00100000 01000100 01100001 01110010 01101011 00100000 01000001 01100111 01100101 01110011
     </header>
 
     <section class='main-pixel-art'>
@@ -32,10 +36,15 @@
         <div class='pixel-art-container pixel-art-container--featured'>
             <div class='placeholder'>
                 {% if featured_post %}
-                <figure class='featured-post'>
-                    <img src='{{ featured_post.image_url }}'
+                <figure class='featured-post js-featured-post' tabindex='0' role='button' aria-label='Load another featured image'>
+                    <div class='featured-post__viewport js-featured-viewport'>
+                        <img src='{{ featured_post.image_url }}'
                         alt='{{ featured_post.alt or "Random featured image" }}'
-                        class='featured-post__image'>
+                        class='featured-post__image js-featured-image'>
+                        <div class='featured-post__signal js-featured-signal' aria-hidden='true'>
+                            <span class='featured-post__signal-copy'>SIGNAL LOST. CLICK TO RETRY.</span>
+                        </div>
+                    </div>
                     <figcaption class='featured-post__label'>{{ featured_post.caption_short or 'RANDOM FEATURED IMAGE' }}</figcaption>
                 </figure>
                 {% else %}
@@ -79,6 +88,107 @@
         </pre>
         <p class='text-dim footer-version'>SYS.TERM v1.0.0 &copy; {{ current_year | default('1995') }}</p>
     </footer>
+    <script>
+        (function () {
+            const featuredImages = {{ featured_images | default([], true) | tojson }};
+            const favicon = document.getElementById('dynamic-favicon');
+            if (!favicon) return;
+
+            const size = 64;
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            canvas.width = size;
+            canvas.height = size;
+
+            function drawFrame(visible) {
+                ctx.clearRect(0, 0, size, size);
+
+                if (visible) {
+                    ctx.fillStyle = '#ff2b2b';
+                    ctx.font = 'bold 42px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('>>', size / 2, size / 2 + 2);
+                }
+
+                favicon.href = canvas.toDataURL('image/png');
+            }
+
+            let visible = true;
+            drawFrame(visible);
+
+            window.setInterval(function () {
+                visible = !visible;
+                drawFrame(visible);
+            }, 500);
+
+            const featuredPost = document.querySelector('.js-featured-post');
+            const featuredViewport = document.querySelector('.js-featured-viewport');
+            const featuredImage = document.querySelector('.js-featured-image');
+            const featuredLabel = document.querySelector('.featured-post__label');
+            const signal = document.querySelector('.js-featured-signal');
+
+            if (!featuredPost || !featuredViewport || !featuredImage || !featuredLabel || !signal || !featuredImages.length) {
+                return;
+            }
+
+            let currentUrl = featuredImage.getAttribute('src');
+            let loading = false;
+
+            function pickNextImage() {
+                const pool = featuredImages.filter(function (item) {
+                    return item.image_url !== currentUrl;
+                });
+
+                if (!pool.length) return null;
+                return pool[Math.floor(Math.random() * pool.length)];
+            }
+
+            function loadNextImage() {
+                if (loading) return;
+
+                const nextImage = pickNextImage();
+                if (!nextImage) return;
+
+                loading = true;
+                featuredPost.classList.add('is-loading');
+
+                window.setTimeout(function () {
+                    const preload = new Image();
+
+                    preload.onload = function () {
+                        featuredImage.src = nextImage.image_url;
+                        featuredImage.alt = nextImage.alt || 'Featured image';
+                        featuredLabel.textContent = nextImage.caption_short || 'RANDOM FEATURED IMAGE';
+                        currentUrl = nextImage.image_url;
+
+                        featuredViewport.classList.remove('is-revealing');
+                        void featuredViewport.offsetWidth;
+                        featuredViewport.classList.add('is-revealing');
+                        featuredPost.classList.remove('is-loading');
+                        loading = false;
+                    };
+
+                    preload.onerror = function () {
+                        featuredPost.classList.remove('is-loading');
+                        loading = false;
+                    };
+
+                    preload.src = nextImage.image_url;
+                }, 450);
+            }
+
+            featuredPost.addEventListener('click', loadNextImage);
+            featuredPost.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    loadNextImage();
+                }
+            });
+        }());
+    </script>
 </body>
 
 </html>

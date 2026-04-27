@@ -422,12 +422,13 @@ p {
 .featured-post {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0;
     width: 100%;
     color: #ffffff;
     text-decoration: none;
     background-color: #050505;
     margin: 0;
+    cursor: pointer;
 }
 
 .featured-post:hover .featured-post__image {
@@ -440,6 +441,34 @@ p {
     color: #000000;
 }
 
+.featured-post:focus-visible {
+    outline: 3px solid #ff0000;
+    outline-offset: 6px;
+}
+
+.featured-post__viewport {
+    position: relative;
+    overflow: hidden;
+    background-color: #000000;
+}
+
+.featured-post__viewport::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        repeating-linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.08) 0,
+            rgba(255, 255, 255, 0.08) 2px,
+            rgba(0, 0, 0, 0) 2px,
+            rgba(0, 0, 0, 0) 6px
+        );
+    opacity: 0.18;
+    pointer-events: none;
+    z-index: 1;
+}
+
 .featured-post__image {
     display: block;
     width: 100%;
@@ -447,6 +476,41 @@ p {
     object-fit: cover;
     image-rendering: auto;
     transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.featured-post__signal {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background:
+        linear-gradient(180deg, rgba(255, 0, 0, 0.24), rgba(0, 0, 0, 0.92)),
+        repeating-linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.18) 0,
+            rgba(255, 255, 255, 0.18) 2px,
+            rgba(0, 0, 0, 0.12) 2px,
+            rgba(0, 0, 0, 0.12) 6px
+        );
+    color: #ffffff;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.featured-post__signal-copy {
+    display: inline-block;
+    padding: 0.6rem 0.8rem;
+    border: 2px solid #ff0000;
+    background-color: rgba(0, 0, 0, 0.88);
+    color: #ff0000;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.65);
 }
 
 .featured-post__label {
@@ -460,6 +524,45 @@ p {
     text-transform: uppercase;
     text-align: center;
     transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.featured-post.is-loading .featured-post__image {
+    opacity: 0.18;
+    filter: grayscale(1) contrast(1.35);
+    transform: scale(1.01);
+}
+
+.featured-post.is-loading .featured-post__signal {
+    opacity: 1;
+    animation: signal-glitch 0.18s steps(2, end) infinite;
+}
+
+.featured-post.is-loading .featured-post__label {
+    color: #ffffff;
+    background-color: #180000;
+}
+
+.featured-post__viewport.is-revealing .featured-post__image {
+    animation: image-line-load 0.85s steps(18, end);
+}
+
+.featured-post__viewport.is-revealing::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 0, 0, 0.18) 35%, transparent 80%),
+        repeating-linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.16) 0,
+            rgba(255, 255, 255, 0.16) 2px,
+            rgba(0, 0, 0, 0) 2px,
+            rgba(0, 0, 0, 0) 8px
+        );
+    mix-blend-mode: screen;
+    pointer-events: none;
+    z-index: 2;
+    animation: reveal-sweep 0.85s steps(18, end);
 }
 
 .featured-post--fallback {
@@ -583,6 +686,36 @@ p {
     0%, 100% { transform: translate(0); }
     25% { transform: translate(-1px, 0); }
     75% { transform: translate(1px, 0); }
+}
+
+@keyframes signal-glitch {
+    0% { transform: translate(0, 0); opacity: 0.92; }
+    25% { transform: translate(-3px, 1px); opacity: 1; }
+    50% { transform: translate(2px, -1px); opacity: 0.82; }
+    75% { transform: translate(-1px, 2px); opacity: 0.96; }
+    100% { transform: translate(0, 0); opacity: 0.88; }
+}
+
+@keyframes image-line-load {
+    0% {
+        clip-path: inset(0 0 100% 0);
+        filter: brightness(1.25) contrast(1.35) saturate(0.85);
+    }
+    100% {
+        clip-path: inset(0 0 0 0);
+        filter: brightness(1) contrast(1) saturate(1);
+    }
+}
+
+@keyframes reveal-sweep {
+    0% {
+        transform: translateY(-100%);
+        opacity: 0.95;
+    }
+    100% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
 }
 
 .glitch-effect {
